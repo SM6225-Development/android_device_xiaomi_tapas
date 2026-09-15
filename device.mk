@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# Platform
+TARGET_BOARD_PLATFORM := bengal_515
+
 # Enable project quotas and casefolding for emulated storage without sdcardfs
 $(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
 
@@ -149,10 +152,6 @@ PRODUCT_PACKAGES += \
 
 # Characteristics
 PRODUCT_CHARACTERISTICS := nosdcard
-
-# Device-specific settings
-PRODUCT_PACKAGES += \
-    DeviceSettings
 
 # Display
 PRODUCT_PACKAGES += \
@@ -360,19 +359,6 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.keystore.app_attest_key.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.keystore.app_attest_key.xml \
     frameworks/native/data/etc/android.software.device_id_attestation.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.device_id_attestation.xml
 
-# Lineage Health
-PRODUCT_PACKAGES += \
-    vendor.lineage.health-service.default
-
-$(call soong_config_set,lineage_health,charging_control_charging_disabled,1)
-$(call soong_config_set,lineage_health,charging_control_charging_enabled,0)
-$(call soong_config_set,lineage_health,charging_control_charging_path,/sys/class/qcom-battery/input_suspend)
-$(call soong_config_set_bool,lineage_health,charging_control_supports_bypass,false)
-
-# LiveDisplay
-PRODUCT_PACKAGES += \
-    vendor.lineage.livedisplay-service.sdm
-
 # Media
 PRODUCT_PACKAGES += \
     libavservices_minijail:64 \
@@ -411,17 +397,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/rootdir/etc/init.topaz.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.topaz.rc
 
-# Overlays
-PRODUCT_PACKAGES += \
-    ApertureResTapas \
-    CarrierConfigResTapas \
-    FrameworksResTapas \
-    NcmTetheringOverlay \
-    SettingsResTapas \
-    SystemUIResTapas \
-    TelephonyResTapas \
-    WifiResTapas
-
 DEVICE_PACKAGE_OVERLAYS += \
     $(LOCAL_PATH)/overlay \
     $(LOCAL_PATH)/overlay-lineage
@@ -453,11 +428,6 @@ TARGET_KERNEL_VERSION := 5.15
 PRODUCT_PACKAGES += \
     android.hardware.power-service-qti \
     android.hardware.power@1.2.vendor
-
-# Protobuf
-PRODUCT_PACKAGES += \
-    libprotobuf-cpp-full-3.9.1-vendorcompat \
-    libprotobuf-cpp-lite-3.9.1-vendorcompat
 
 # QMI
 PRODUCT_PACKAGES += \
@@ -623,7 +593,11 @@ PRODUCT_COPY_FILES += \
 # WiFi firmware symlinks
 PRODUCT_PACKAGES += \
     firmware_wlan_mac.bin_symlink \
-    firmware_WCNSS_qcom_cfg.ini_symlink
+    firmware_WCNSS_qcom_cfg.ini_symlink \
+
+# BPF
+PRODUCT_PRODUCT_PROPERTIES += \
+    ro.bpf.kver_override=5.10.239
 
 # Vendor MiuiCamera
 $(call inherit-product-if-exists, device/xiaomi/tapas-miuicamera/device.mk)

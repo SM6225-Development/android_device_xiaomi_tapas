@@ -52,8 +52,50 @@ TARGET_USES_QCOM_MM_AUDIO := true
 # Boot control
 $(call soong_config_set, ufsbsg, ufsframework, bsg)
 
+# Platform
+BOARD_USES_QCOM_HARDWARE := true
+TARGET_BOARD_PLATFORM := holi
+QCOM_BOARD_PLATFORMS += holi
+include vendor/qcom/opensource/core-utils/build/utils.mk
+
+# Power
+TARGET_USES_NON_LEGACY_POWERHAL := true
+
+# Build
+BUILD_BROKEN_MISSING_REQUIRED_MODULES := true
+TARGET_FWK_SUPPORTS_FULL_VALUEADDS := false
+
 # Display
 TARGET_SCREEN_DENSITY := 440
+include hardware/qcom/display/config/display-board.mk
+
+# QTI Display
+SOONG_CONFIG_NAMESPACES += qtidisplay
+SOONG_CONFIG_qtidisplay += \
+    default \
+    drmpp \
+    gralloc4 \
+    gralloc_handle_has_no_reserved_size \
+    headless \
+    llvmsa \
+    udfps
+
+SOONG_CONFIG_qtidisplay_default := true
+SOONG_CONFIG_qtidisplay_drmpp := true
+SOONG_CONFIG_qtidisplay_gralloc4 := true
+SOONG_CONFIG_qtidisplay_gralloc_handle_has_no_reserved_size := false
+SOONG_CONFIG_qtidisplay_headless := false
+SOONG_CONFIG_qtidisplay_llvmsa := false
+SOONG_CONFIG_qtidisplay_udfps := false
+
+# QTI Display CommonSys
+SOONG_CONFIG_NAMESPACES += qtidisplaycommonsys
+SOONG_CONFIG_qtidisplaycommonsys += \
+    gralloc_handle_has_no_custom_content_md_reserved_size \
+    gralloc_handle_has_no_ubwcp
+
+SOONG_CONFIG_qtidisplaycommonsys_gralloc_handle_has_no_custom_content_md_reserved_size := true
+SOONG_CONFIG_qtidisplaycommonsys_gralloc_handle_has_no_ubwcp := true
 
 # DTB/DTBO
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
@@ -165,6 +207,22 @@ TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
 
+# UFS BSG Framework
+SOONG_CONFIG_NAMESPACES += ufsbsg
+SOONG_CONFIG_ufsbsg += ufsframework
+SOONG_CONFIG_ufsbsg_ufsframework := bsg
+
+# RMNETCTL
+SOONG_CONFIG_NAMESPACES += rmnetctl
+SOONG_CONFIG_rmnetctl += old_rmnet_data
+SOONG_CONFIG_rmnetctl_old_rmnet_data := true
+
+# Tinycompress
+SOONG_CONFIG_NAMESPACES += tinycompress
+SOONG_CONFIG_tinycompress += enable_extended_compress_format loop_compress_read
+SOONG_CONFIG_tinycompress_enable_extended_compress_format := true
+SOONG_CONFIG_tinycompress_loop_compress_read := true
+
 # RIL
 ENABLE_VENDOR_RIL_SERVICE := true
 
@@ -175,10 +233,13 @@ VENDOR_SECURITY_PATCH := $(BOOT_SECURITY_PATCH)
 # Sepolicy
 include device/qcom/sepolicy_vndr/SEPolicy.mk
 include device/xiaomi/sepolicy/SEPolicy.mk
+include device/qcom/common/sepolicy/SEPolicy.mk
+include vendor/aospa/sepolicy/sepolicy.mk
+include vendor/aospa/sepolicy/libion/sepolicy.mk
 SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/private
-#SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/public
-BOARD_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/dynamic
 BOARD_VENDOR_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/vendor
+
+
 
 # Verified Boot
 BOARD_AVB_ENABLE := true
@@ -220,7 +281,7 @@ BOARD_AVB_ODM_ADD_HASHTREE_FOOTER_ARGS += --hash_algorithm sha256
 # VINTF
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += \
     $(DEVICE_PATH)/configs/vintf/framework_compatibility_matrix.xml \
-    hardware/lineage/interfaces/compatibility_matrices/compatibility_matrix.lineage.xml
+    vendor/aospa/target/config/aospa_vendor_framework_compatibility_matrix.xml
 DEVICE_FRAMEWORK_MANIFEST_FILE += $(DEVICE_PATH)/configs/vintf/framework_manifest.xml
 DEVICE_MANIFEST_FILE += \
     $(DEVICE_PATH)/configs/vintf/manifest.xml \
@@ -244,9 +305,6 @@ WIFI_DRIVER_STATE_ON := "ON"
 WIFI_HIDL_FEATURE_DUAL_INTERFACE := true
 WIFI_HIDL_UNIFIED_SUPPLICANT_SERVICE_RC_ENTRY := true
 WPA_SUPPLICANT_VERSION := VER_0_8_X
-
-# Vendor MiuiCamera
--include device/xiaomi/tapas-miuicamera/BoardConfig.mk
 
 # Include the proprietary files BoardConfig.
 include vendor/xiaomi/tapas/BoardConfigVendor.mk
